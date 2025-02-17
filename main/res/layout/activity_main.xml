@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@color/app_black">
+
+    <ImageView
+        android:id="@+id/app_logo"
+        android:layout_marginTop="-100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/app_logo"
+        />
+
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hi!"
+
+        android:textColor="@color/app_white"
+        android:fontFamily="@font/playfair"
+        android:textSize="50dp"
+        />
+
+
+    <TextView
+        android:id="@+id/text3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What would you want to translate ?"
+        android:textColor="@color/app_white"
+        android:textSize="20dp"
+
+        android:layout_marginTop="20dp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:layout_centerInParent="true">
+
+        <EditText
+            android:id="@+id/enter_text"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            android:hint="Write Here"
+            android:inputType="text"
+            android:padding="20dp"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="@color/app_white"
+            android:textColorHint="@color/app_white"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/translate_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:layout_marginStart="10dp"
+            android:backgroundTint="@color/background"
+            android:padding="22dp"
+            android:textColor="@color/app_white"
+            android:text="Translate"
+            android:textAlignment="textStart"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/morse_output"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Translation"
+        android:textColor="@color/app_white"
+        android:textSize="25dp"
+        />
+
+
+    <Button
+        android:id="@+id/flashlight_button"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_marginStart="10dp"
+        android:padding="20dp"
+        android:text="View as Flaslight"
+        android:textAlignment="center"
+
+        android:textSize="20dp"
+        android:textColor="@color/app_black"
+        android:backgroundTint="@color/app_green"
+
+        />
+
+    <Button
+        android:id="@+id/save_mp3_button"
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_marginStart="10dp"
+        android:padding="20dp"
+        android:text="Save as .mp3 file"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        android:textColor="@color/app_black"
+        android:backgroundTint="@color/app_blue"
+        />
+
+
+</LinearLayout>

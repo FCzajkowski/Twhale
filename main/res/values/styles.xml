@@ -1,0 +1,7 @@
+<resources>
+    <style name="activityTheme" parent="Theme.AppCompat.DayNight">
+        <item name="colorPrimary">@color/app_white</item>
+        <item name="colorPrimaryDark">@color/app_black</item>
+        <item name="colorAccent">@color/app_blue</item>
+    </style>
+</resources>
