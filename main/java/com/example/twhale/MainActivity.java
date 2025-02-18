@@ -18,21 +18,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText enterText;
-    private Button translateButton, flashlightButton, saveMp3Button;
+    private Button translateButton, flashlightButton, saveMp3Button, saveTxtButton;
     private TextView morseOutput, text2, text3;
-    private View screenView;
     private CameraManager cameraManager;
     private String cameraId;
     private TextToSpeech textToSpeech;
-    private static final int REQUEST_STORAGE_PERMISSION = 2000;
     private static final int REQUEST_CAMERA_PERMISSION = 2001;
     private MorseTranslator morseTranslator;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +43,14 @@ public class MainActivity extends AppCompatActivity {
         morseOutput = findViewById(R.id.morse_output);
         flashlightButton = findViewById(R.id.flashlight_button);
         saveMp3Button = findViewById(R.id.save_mp3_button);
-        screenView = findViewById(android.R.id.content);
+        saveTxtButton = findViewById(R.id.save_txt_button);
         text2 = findViewById(R.id.text2);
         text3 = findViewById(R.id.text3);
 
         morseOutput.setVisibility(View.GONE);
         flashlightButton.setVisibility(View.GONE);
         saveMp3Button.setVisibility(View.GONE);
+        saveTxtButton.setVisibility(View.GONE);
         morseTranslator = new MorseTranslator();
 
         cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
             cameraId = cameraManager.getCameraIdList()[0];
         } catch (CameraAccessException e) {
             e.printStackTrace();
+            System.out.println("You thought that camera was working, but It was me, ERROR");
         }
 
         textToSpeech = new TextToSpeech(this, status -> {
@@ -65,9 +66,11 @@ public class MainActivity extends AppCompatActivity {
                 textToSpeech.setLanguage(Locale.US);
             }
         });
+
         translateButton.setOnClickListener(v -> translateToMorse());
         flashlightButton.setOnClickListener(v -> blinkFlashlight());
-        saveMp3Button.setOnClickListener(v -> checkStoragePermission());
+        saveMp3Button.setOnClickListener(v -> saveMorseAsMp3());
+        saveTxtButton.setOnClickListener(v -> saveMorseAsTxt());
     }
 
     private void translateToMorse() {
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         morseOutput.setVisibility(View.VISIBLE);
         flashlightButton.setVisibility(View.VISIBLE);
         saveMp3Button.setVisibility(View.VISIBLE);
+        saveTxtButton.setVisibility(View.VISIBLE);
     }
 
     private void blinkFlashlight() {
@@ -136,45 +140,63 @@ public class MainActivity extends AppCompatActivity {
         try {
             cameraManager.setTorchMode(cameraId, state);
         } catch (CameraAccessException e) {
-            e.printStackTrace();
+            morseOutput.setText("Error while accessing camera");
         }
     }
 
     private void saveMorseAsMp3() {
         String morseText = morseOutput.getText().toString();
         if (morseText.isEmpty()) {
+            morseOutput.setText("No Morse code to save.");
             return;
         }
 
-        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (textToSpeech == null) {
+            morseOutput.setText("TTS is not initialized.");
+            return;
+        }
+
+        File path = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
         if (path == null) {
+            morseOutput.setText("Storage unavailable.");
             return;
         }
 
         File file = new File(path, "morse_translation.mp3");
 
-        Bundle params = new Bundle();
-        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MorseTranslation");
-
-        textToSpeech.synthesizeToFile(morseText, params, file, "MorseTranslation");
+        textToSpeech.synthesizeToFile(morseText, null, file.getAbsolutePath());
 
         morseOutput.setText("Saved: " + file.getAbsolutePath());
     }
 
-    private void checkStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
-        } else {
-            saveMorseAsMp3();
+    private void saveMorseAsTxt() {
+        String morseText = morseOutput.getText().toString();
+        if (morseText.isEmpty()) {
+            morseOutput.setText("No Morse code to save.");
+            return;
+        }
+
+        File path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        if (path == null) {
+            morseOutput.setText("Storage unavailable.");
+            return;
+        }
+
+        File file = new File(path, "morse_translation.txt");
+
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(morseText);
+            writer.flush();
+            morseOutput.setText("Saved: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            morseOutput.setText("Error saving Morse code.");
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_STORAGE_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            saveMorseAsMp3();
-        } else if (requestCode == REQUEST_CAMERA_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_CAMERA_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             blinkFlashlight();
         }
     }
