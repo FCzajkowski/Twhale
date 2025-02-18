@@ -156,18 +156,31 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        File path = getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2002);
+            return;
+        }
+
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (path == null) {
             morseOutput.setText("Storage unavailable.");
             return;
         }
 
-        File file = new File(path, "morse_translation.mp3");
+        File file = new File(path, "TWhale_translation.mp3");
 
-        textToSpeech.synthesizeToFile(morseText, null, file.getAbsolutePath());
+        Bundle params = new Bundle();
+        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "morse_audio");
 
-        morseOutput.setText("Saved: " + file.getAbsolutePath());
+        int result = textToSpeech.synthesizeToFile(morseText, params, file, "morse_audio");
+
+        if (result == TextToSpeech.SUCCESS) {
+            morseOutput.setText("Saved: " + file.getAbsolutePath());
+        } else {
+            morseOutput.setText("Error saving Morse code as MP3.");
+        }
     }
+
 
     private void saveMorseAsTxt() {
         String morseText = morseOutput.getText().toString();
@@ -176,22 +189,19 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        File path = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-        if (path == null) {
-            morseOutput.setText("Storage unavailable.");
-            return;
-        }
-
-        File file = new File(path, "morse_translation.txt");
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File file = new File(path, "TWhale_translation.txt");
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(morseText);
+            writer.write("Text Translated with TWhale");
             writer.flush();
             morseOutput.setText("Saved: " + file.getAbsolutePath());
         } catch (IOException e) {
             morseOutput.setText("Error saving Morse code.");
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
